@@ -8,9 +8,6 @@
 
 
 import wx
-import sys
-
-sys.path.append("C:\\Project\\HypoModPython")
 
 from HypoModPy.hypomain import *
 
