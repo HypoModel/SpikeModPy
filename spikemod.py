@@ -164,8 +164,10 @@ class SpikeModel(ModThread):
         halflifeMem = params["halflifeMem"]
         kHAP = params["kHAP"]
         halflifeHAP = params["halflifeHAP"]
-        #kAHP = params["kAHP"]
-        #halflifeAHP = params["halflifeAHP"]
+        kAHP = params["kAHP"]
+        halflifeAHP = params["halflifeAHP"]
+        kDAP = params["kDAP"]
+        halflifeDAP = params["halflifeDAP"]
 
         epspmag = pspmag
         ipspmag = pspmag
@@ -176,7 +178,8 @@ class SpikeModel(ModThread):
         # Spiking 
         tauMem = math.log(2) / halflifeMem
         tauHAP = math.log(2) / halflifeHAP
-        #tauAHP = math.log(2) / halflifeAHP
+        tauAHP = math.log(2) / halflifeAHP
+        tauDAP = math.log(2) / halflifeDAP
 
         # Initialise variables
         epsprate = 0
@@ -188,7 +191,8 @@ class SpikeModel(ModThread):
         inputPSP = 0
         tPSP = 0
         tHAP = 0
-        #tAHP = 0
+        tAHP = 0
+        tDAP = 0
 
         spikedata.spikecount = 0
         maxspikes = spikedata.maxspikes
@@ -232,9 +236,11 @@ class SpikeModel(ModThread):
 
             tHAP = tHAP - tHAP * tauHAP
 
-            #tAHP = tAHP - tAHP * tauAHP
+            tAHP = tAHP - tAHP * tauAHP
 
-            V = Vrest + tPSP - tHAP # - tAHP + tDAP
+            tDAP = tDAP - tDAP * tauDAP
+
+            V = Vrest + tPSP - tHAP - tAHP + tDAP
 
             #print(f"SpikeModel step {i}  V {V:.2f}  tPSP {tPSP:.2f}  inputPSP {inputPSP:.2f}  nepsp {nepsp}")
 
@@ -250,8 +256,8 @@ class SpikeModel(ModThread):
                 # Spike incremented variable
                 # afterpotentials
                 tHAP = tHAP + kHAP
-                #tAHP = tAHP + kAHP
-                #tDAP = tDAP + kDAP
+                tAHP = tAHP + kAHP
+                tDAP = tDAP + kDAP
 
         freq = spikedata.spikecount / (runtime / 1000)
         DiagWrite(f"Spike Model OK, generated {spikedata.spikecount} spikes, freq {freq:.2f}\n")
@@ -285,8 +291,10 @@ class SpikeBox(ParamBox):
         self.paramset.AddCon("halflifeMem", "halflifeMem", 7.5, 0.1, 2)
         self.paramset.AddCon("kHAP", "kHAP", 60, 0.1, 2)
         self.paramset.AddCon("halflifeHAP", "halflifeHAP", 8, 0.1, 2)
-        #self.paramset.AddCon("kAHP", "kAHP", 0.5, 0.01, 2)
-        #self.paramset.AddCon("halflifeAHP", "halflifeAHP", 500, 1, 2)
+        self.paramset.AddCon("kAHP", "kAHP", 0.5, 0.01, 2)
+        self.paramset.AddCon("halflifeAHP", "halflifeAHP", 500, 1, 2)
+        self.paramset.AddCon("kDAP", "kDAP", 0, 0.01, 2)
+        self.paramset.AddCon("halflifeDAP", "halflifeDAP", 150, 1, 2)
 
         self.ParamLayout(2)   # layout parameter controls in two columns
 
