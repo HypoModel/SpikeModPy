@@ -24,24 +24,25 @@ class SpikeMod(Mod):
         self.mainwin = mainwin
 
         self.gridbox = GridBox(self, "Data Grid", wx.Point(0, 0), wx.Size(320, 500), 100, 20)
-        self.spikebox = SpikeBox(self, "spike", "Spike Model", wx.Point(0, 0), wx.Size(320, 500))
-        #self.neurobox = NeuroBox(self, "spikedata", "Spike Data", wx.Point(0, 0), wx.Size(320, 500))
+        self.spikemodbox = SpikeModBox(self, "spikemod", "Spike Model", wx.Point(0, 0), wx.Size(320, 500))
+        self.spikedatabox = SpikeDataBox(self, "Spike Data", wx.Point(0, 0), wx.Size(320, 500))
 
         self.gridbox.NeuroButton()
 
         # link mod owned boxes
         mainwin.gridbox = self.gridbox
+        mainwin.spikedatabox = self.spikedatabox
 
-        self.modtools[self.spikebox.boxtag] = self.spikebox
+        self.modtools[self.spikemodbox.boxtag] = self.spikemodbox
         self.modtools[self.gridbox.boxtag] = self.gridbox
-        #self.modtools[self.neurobox.boxtag] = self.neurobox
+        self.modtools[self.spikedatabox.boxtag] = self.spikedatabox
 
-        self.spikebox.Show(True)
-        self.modbox = self.spikebox
+        self.spikemodbox.Show(True)
+        self.modbox = self.spikemodbox
 
-        mainwin.toolset.AddBox(self.spikebox)  
+        mainwin.toolset.AddBox(self.spikemodbox)  
         mainwin.toolset.AddBox(self.gridbox)  
-        #mainwin.toolset.AddBox(self.neurobox)  
+        mainwin.toolset.AddBox(self.spikedatabox)  
 
         self.ModLoad()
         print("Spike Model OK")
@@ -86,10 +87,11 @@ class SpikeMod(Mod):
     def NeuroData(self):
         DiagWrite("NeuroData() call\n")
 
-        self.cellindex = 0
+        self.cellindex = self.spikedatabox.cellpanel.cellindex
         self.cellspike.Analysis(self.celldata[self.cellindex])
         self.cellspike.id = self.cellindex
         self.cellspike.name = self.celldata[self.cellindex].name
+        self.spikedatabox.cellpanel.PanelData(self.cellspike)
 
         self.mainwin.scalebox.GraphUpdateAll()
 
@@ -109,7 +111,7 @@ class SpikeMod(Mod):
 
 
     def OnModThreadProgress(self, event):
-        self.spikebox.SetCount(event.GetInt())
+        self.spikemodbox.SetCount(event.GetInt())
         #DiagWrite(f"Model thread progress, value {event.GetInt()}\n\n")
 
 
@@ -126,7 +128,7 @@ class SpikeModel(ModThread):
         ModThread.__init__(self, mod.modbox, mod.mainwin)
 
         self.mod = mod
-        self.spikebox = mod.spikebox
+        self.spikemodbox = mod.spikemodbox
         self.mainwin = mod.mainwin
         self.scalebox = mod.mainwin.scalebox
 
@@ -134,7 +136,7 @@ class SpikeModel(ModThread):
     # run() is the thread entry function, used to initialise and call the main Model() function   
     def run(self):
         # Read model flags
-        self.randomflag = self.spikebox.modflags["randomflag"]      # model flags are useful for switching elements of the model code while running
+        self.randomflag = self.spikemodbox.modflags["randomflag"]      # model flags are useful for switching elements of the model code while running
 
         if self.randomflag: random.seed(0)
         else: random.seed(datetime.now().microsecond)
@@ -149,7 +151,7 @@ class SpikeModel(ModThread):
     # Model() reads in the model parameters, initialises variables, and runs the main model loop
     def Model(self):
         spikedata = self.mod.modspike
-        params = self.spikebox.GetParams()
+        params = self.spikemodbox.GetParams()
         #protoparams = self.mod.protobox.GetParams()
 
 
@@ -263,7 +265,7 @@ class SpikeModel(ModThread):
         DiagWrite(f"Spike Model OK, generated {spikedata.spikecount} spikes, freq {freq:.2f}\n")
 
 
-class SpikeBox(ParamBox):
+class SpikeModBox(ParamBox):
     def __init__(self, mod, tag, title, position, size):
         ParamBox.__init__(self, mod, title, position, size, tag, 0, 1)
 
