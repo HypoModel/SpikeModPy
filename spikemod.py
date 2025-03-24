@@ -23,35 +23,32 @@ class SpikeMod(Mod):
 
         self.mainwin = mainwin
 
+        # tool boxes
         self.gridbox = GridBox(self, "Data Grid", wx.Point(0, 0), wx.Size(320, 500), 100, 20)
-        self.spikemodbox = SpikeModBox(self, "spikemod", "Spike Model", wx.Point(0, 0), wx.Size(320, 500))
-        self.spikedatabox = SpikeDataBox(self, "Spike Data", wx.Point(0, 0), wx.Size(320, 500))
-
         self.gridbox.NeuroButton()
+        self.spikemodbox = SpikeModBox(self, "spikemod", "Spike Model", wx.Point(0, 0), wx.Size(320, 500))
+        self.spikedatabox = SpikeDataBox(self, "spikedatabox", "Spike Data", wx.Point(0, 0), wx.Size(320, 500))
 
         # link mod owned boxes
         mainwin.gridbox = self.gridbox
         mainwin.spikedatabox = self.spikedatabox
 
-        self.modtools[self.spikemodbox.boxtag] = self.spikemodbox
-        self.modtools[self.gridbox.boxtag] = self.gridbox
-        self.modtools[self.spikedatabox.boxtag] = self.spikedatabox
+        # spike data stores
+        self.cellspike = SpikeDat()
+        self.modspike = SpikeDat()
 
+        self.AddTool(self.spikemodbox)
+        self.AddTool(self.gridbox)
+        self.AddTool(self.spikedatabox)
+    
         self.spikemodbox.Show(True)
         self.modbox = self.spikemodbox
-
-        mainwin.toolset.AddBox(self.spikemodbox)  
-        mainwin.toolset.AddBox(self.gridbox)  
-        mainwin.toolset.AddBox(self.spikedatabox)  
 
         self.ModLoad()
         print("Spike Model OK")
 
         self.celldata = []
-        #self.celldata = NeuroDat()
-
-        self.cellspike = SpikeDat()
-        self.modspike = SpikeDat()
+       
         self.PlotData()
         self.graphload = True
 
