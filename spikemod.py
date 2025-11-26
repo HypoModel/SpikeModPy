@@ -33,9 +33,12 @@ class SpikeMod(Mod):
         mainwin.gridbox = self.gridbox
         mainwin.spikedatabox = self.spikedatabox
 
-        # spike data stores
+        # spike data analysis stores
         self.cellspike = SpikeDat()
         self.modspike = SpikeDat()
+
+        # spike data stores
+        self.spikedata = []
 
         self.AddTool(self.spikemodbox)
         self.AddTool(self.gridbox)
@@ -47,8 +50,6 @@ class SpikeMod(Mod):
         self.ModLoad()
         print("Spike Model OK")
 
-        self.celldata = []
-       
         self.PlotData()
         self.graphload = True
 
@@ -85,9 +86,9 @@ class SpikeMod(Mod):
         DiagWrite("NeuroData() call\n")
 
         self.cellindex = self.spikedatabox.cellpanel.cellindex
-        self.cellspike.Analysis(self.celldata[self.cellindex])
+        self.cellspike.Analysis(self.spikedata[self.cellindex])
         self.cellspike.id = self.cellindex
-        self.cellspike.name = self.celldata[self.cellindex].name
+        self.cellspike.name = self.spikedata[self.cellindex].name
         self.spikedatabox.cellpanel.PanelData(self.cellspike)
 
         self.mainwin.scalebox.GraphUpdateAll()
