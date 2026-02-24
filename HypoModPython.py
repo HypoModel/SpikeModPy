@@ -21,7 +21,7 @@ modname = "Spike"
 mainwin = HypoMain("HypoMod", pos, size, respath, mainpath, modname)
 mainwin.Show()
 mainwin.SetFocus()
-go_foreground()
+#go_foreground()
 app.MainLoop()
 
 
