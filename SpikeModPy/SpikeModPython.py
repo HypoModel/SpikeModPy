@@ -9,7 +9,7 @@
 
 import wx
 
-from HypoModPy.hypomain import *
+from HypoModPy.hypomain import HypoMain, go_foreground
 
 
 class HypoApp(wx.App):
@@ -26,21 +26,6 @@ class HypoApp(wx.App):
         self.mainwin.SetFocus()
         go_foreground()
         return True
-
-    # def MacReopenApp(self):
-    #     mainwin = self.GetTopWindow()
-    #     if not mainwin: return
-
-    #     mainwin.Show(True)
-    #     if mainwin.IsIconized(): mainwin.Iconize(False)
-    #     mainwin.Raise()
-    #     mainwin.SetFocus()
-        
-    #     for tool in mainwin.toolset.tools.values():
-    #         if tool.box:
-    #             tool.box.Show(tool.visible)
-    #             tool.box.Iconize(False)
-    #             tool.box.SetPosition(mainwin.GetPosition(), mainwin.GetSize())
 
 
     def MacReopenApp(self):
