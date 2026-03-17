@@ -13,12 +13,13 @@ from HypoModPy.hypomods import (
     ModThreadEvent,
     ModThreadCompleteEvent,
     ModThreadProgressEvent,
-    DiagWrite
 )
+
 from HypoModPy.hypoparams import ParamBox
 from HypoModPy.hypodat import PlotDat
 from HypoModPy.hypogrid import GridBox
 from HypoModPy.hypospikes import SpikeDat, SpikeDataBox
+from HypoModPy.hypotools import DiagWrite
 
 
 class SpikeMod(Mod):
