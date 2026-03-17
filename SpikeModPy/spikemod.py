@@ -1,25 +1,14 @@
 
 
-import os
-import math
-import random
-from datetime import datetime
-
 import wx
+import random
+import numpy as np
 
-from HypoModPy.hypomods import (
-    Mod,
-    ModThread,
-    ModThreadEvent,
-    ModThreadCompleteEvent,
-    ModThreadProgressEvent,
-)
-
-from HypoModPy.hypoparams import ParamBox
-from HypoModPy.hypodat import PlotDat
-from HypoModPy.hypogrid import GridBox
-from HypoModPy.hypospikes import SpikeDat, SpikeDataBox
-from HypoModPy.hypotools import DiagWrite
+from HypoModPy.hypomods import *
+from HypoModPy.hypoparams import *
+from HypoModPy.hypodat import *
+from HypoModPy.hypogrid import *
+from HypoModPy.hypospikes import *
 
 
 class SpikeMod(Mod):
@@ -128,14 +117,27 @@ class SpikeMod(Mod):
         if not self.runflag:
             self.mainwin.SetStatusText("Spike Model Run")
             self.runflag = True
-            modthread = SpikeModel(self)
+            params = self.modbox.GetParams()
+
+            # multibox example
+            #
+            # params = {
+            #     "spike": self.spikebox.GetParams(),
+            #     "neuro": self.neurobox.GetParams(),
+            #     "syn": self.synbox.GetParams(),
+            # }
+            #
+
+            modthread = SpikeModel(self, params)
             modthread.start()
+           
 
 
 class SpikeModel(ModThread):
-    def __init__(self, mod):
-        ModThread.__init__(self, mod.modbox, mod.mainwin)
+    def __init__(self, mod, params):
+        ModThread.__init__(self, params, mod.mainwin)
 
+        self.params = params
         self.mod = mod
         self.spikemodbox = mod.spikemodbox
         self.mainwin = mod.mainwin
@@ -160,7 +162,7 @@ class SpikeModel(ModThread):
     # Model() reads in the model parameters, initialises variables, and runs the main model loop
     def Model(self):
         spikedata = self.mod.modspike
-        params = self.spikemodbox.GetParams()
+        params = self.params
         #protoparams = self.mod.protobox.GetParams()
 
 
@@ -177,8 +179,6 @@ class SpikeModel(ModThread):
         halflifeHAP = params["halflifeHAP"]
         kAHP = params["kAHP"]
         halflifeAHP = params["halflifeAHP"]
-        kDAP = params["kDAP"]
-        halflifeDAP = params["halflifeDAP"]
 
         epspmag = pspmag
         ipspmag = pspmag
@@ -190,7 +190,6 @@ class SpikeModel(ModThread):
         tauMem = math.log(2) / halflifeMem
         tauHAP = math.log(2) / halflifeHAP
         tauAHP = math.log(2) / halflifeAHP
-        tauDAP = math.log(2) / halflifeDAP
 
         # Initialise variables
         epsprate = 0
@@ -203,7 +202,6 @@ class SpikeModel(ModThread):
         tPSP = 0
         tHAP = 0
         tAHP = 0
-        tDAP = 0
 
         spikedata.spikecount = 0
         maxspikes = spikedata.maxspikes
@@ -249,9 +247,7 @@ class SpikeModel(ModThread):
 
             tAHP = tAHP - tAHP * tauAHP
 
-            tDAP = tDAP - tDAP * tauDAP
-
-            V = Vrest + tPSP - tHAP - tAHP + tDAP
+            V = Vrest + tPSP - tHAP - tAHP
 
             #print(f"SpikeModel step {i}  V {V:.2f}  tPSP {tPSP:.2f}  inputPSP {inputPSP:.2f}  nepsp {nepsp}")
 
@@ -268,7 +264,9 @@ class SpikeModel(ModThread):
                 # afterpotentials
                 tHAP = tHAP + kHAP
                 tAHP = tAHP + kAHP
-                tDAP = tDAP + kDAP
+                
+                ttime = 0
+                #DiagWrite("spike fired\n")
 
         freq = spikedata.spikecount / (runtime / 1000)
         DiagWrite(f"Spike Model OK, generated {spikedata.spikecount} spikes, freq {freq:.2f}\n")
@@ -303,8 +301,6 @@ class SpikeModBox(ParamBox):
         self.paramset.AddCon("halflifeHAP", "halflifeHAP", 8, 0.1, 2)
         self.paramset.AddCon("kAHP", "kAHP", 0.5, 0.01, 2)
         self.paramset.AddCon("halflifeAHP", "halflifeAHP", 500, 1, 2)
-        self.paramset.AddCon("kDAP", "kDAP", 0, 0.01, 2)
-        self.paramset.AddCon("halflifeDAP", "halflifeDAP", 150, 1, 2)
 
         self.ParamLayout(2)   # layout parameter controls in two columns
 
@@ -323,43 +319,12 @@ class SpikeModBox(ParamBox):
         self.mainbox.Add(runbox, 0, wx.ALIGN_CENTRE_HORIZONTAL|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 0)
         self.mainbox.AddSpacer(5)
         self.mainbox.Add(paramfilebox, 0, wx.ALIGN_CENTRE_HORIZONTAL|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 0)    
-        #self.mainbox.AddStretchSpacer()
         self.mainbox.Add(self.buttonbox, 0, wx.ALIGN_CENTRE_HORIZONTAL | wx.ALIGN_CENTRE_VERTICAL | wx.ALL, 0)
         self.mainbox.AddSpacer(5)
-        #self.mainbox.AddSpacer(2)
         self.panel.Layout()
 
 
-    def SetCount(self, value):
-        self.runcount.SetLabel(f"{value} %")
-
-
-class NeuroBox(ParamBox):
-    def __init__(self, mod, tag, title, position, size):
-        ParamBox.__init__(self, mod, title, position, size, tag, 0, 1)
-
-        self.autorun = True
-
-        # Initialise Menu 
-        #self.InitMenu()
-
-        # Model Flags
     
 
-        # Parameter controls
-        #
-        # AddCon(tag string, display string, initial value, click increment, decimal places)
-        # ----------------------------------------------------------------------------------
-        self.paramset.AddCon("drinkstart", "Drink Start", 0, 1, 0)
-        self.paramset.AddCon("drinkstop", "Drink Stop", 0, 1, 0)
-        self.paramset.AddCon("drinkrate", "Drink Rate", 10, 1, 0)
 
-        self.ParamLayout(3)   # layout parameter controls in two columns
 
-        # ----------------------------------------------------------------------------------
-
-        self.mainbox.AddSpacer(5)
-        self.mainbox.Add(self.pconbox, 1, wx.ALIGN_CENTRE_HORIZONTAL|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 0)
-        self.mainbox.AddStretchSpacer(5)
-        self.mainbox.AddSpacer(2)
-        self.panel.Layout()
