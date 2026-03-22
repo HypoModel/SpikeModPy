@@ -35,16 +35,9 @@ class SecData():
     
 
 class SpikeMod(Mod):
-    def __init__(self, mainwin, tag):
-        Mod.__init__(self, mainwin, tag)
+    def __init__(self, mainwin, tag, label="", type=""):
+        Mod.__init__(self, mainwin, tag, label, type)
 
-        if mainwin.modpath != "": self.path = mainwin.modpath + "/Spike"
-        else: self.path = "Spike"
-
-        if os.path.exists(self.path) == False: 
-            os.mkdir(self.path)
-
-        self.mainwin = mainwin
         self.datsample = 1       # ms sample interval for secretion model data, 1000 = 1 sample per second
 
         # tool boxes
