@@ -35,6 +35,10 @@ class SpikeBox(ParamBox):
         self.paramset.AddCon("kAHP", "kAHP", 0.5, 0.01, 2)
         self.paramset.AddCon("halflifeAHP", "halflifeAHP", 500, 1, 2)
 
+        self.paramset.AddCon("pspmag2", "pspmag2", 0, 0.1, 4)
+        self.paramset.AddCon("psprate2", "psprate2", 0, 1, 2)
+        self.paramset.AddCon("halflifePSP2", "halflifePSP2", 5, 0.1, 4)
+
         self.paramset.GetCon("runtime").SetMinMax(10, 10000)
 
         self.ParamLayout(2)   # layout parameter controls in two columns
@@ -47,7 +51,8 @@ class SpikeBox(ParamBox):
         databox = wx.BoxSizer(wx.HORIZONTAL)
         self.freq = self.NumPanel(60, wx.ALIGN_RIGHT)
         label = wx.StaticText(self.panel, wx.ID_STATIC, "Freq")
-        label.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
+        #label.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
+        label.SetFont(self.confont)
         databox.Add(label,0, (wx.ALIGN_CENTRE|wx.ST_NO_AUTORESIZE))
         databox.AddSpacer(10)   
         databox.Add(self.freq)

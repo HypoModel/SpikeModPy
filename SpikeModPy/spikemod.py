@@ -340,20 +340,21 @@ class SpikeModel(ModThread):
                     nepsp2 += 1
                     epspt2 = -math.log(1 - erand2) / epsprate2 + epspt2
                 epspt2 = epspt2 - hstep
-
-            
+  
             if epspmag2:
-                if epspsynchflag: nepsp2 = nepsp;   # synchronous AMPA and NMDA EPSPs
-                inputPSP2 = inputPSP2 - (inputPSP2 * tauPSP2) * hstep + nepsp2 * epspmag2
+                if epspsynchflag: nepsp2 = nepsp   # synchronous AMPA and NMDA EPSPs
+                inputPSP2 = inputPSP2 - inputPSP2 * tauPSP2 + nepsp2 * epspmag2
 			
-
-            
-
-        
+            # the NMDA PSPs use an alpha-function, not the instant step of the basic PSPs
+            # inputPSP2 stores the accumulated NMDA perturbations
+            # tauPSP2 controls how fast the NMDA store is transferred to the acting psp voltage, 
+            # which here also includes basic exponential psps
+            # thus reciprocal inputPSP2 * tauPSP2 subtracted and added
 
 
             # Spiking Model
-            tPSP = tPSP + inputPSP - tPSP * tauMem
+            #tPSP = tPSP + inputPSP - tPSP * tauMem
+            tPSP = tPSP + inputPSP - tPSP * tauMem + inputPSP2 * tauPSP2    # NMDA PSP
             tHAP = tHAP - tHAP * tauHAP
             tAHP = tAHP - tAHP * tauAHP
             V = Vrest + tPSP - tHAP - tAHP
