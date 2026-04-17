@@ -255,6 +255,9 @@ class SpikeModel(ModThread):
         tauHAP = math.log(2) / halflifeHAP
         tauAHP = math.log(2) / halflifeAHP
 
+        epsprate = psprate / 1000
+        ipsprate = epsprate * pspratio
+
         # Secretion
         tauB = math.log(2) / halflifeB
         tauE = math.log(2) / halflifeE
@@ -266,9 +269,15 @@ class SpikeModel(ModThread):
         tauClear = tauClear / 1000   # convert from per second to per ms, as model runs in ms time steps
         tauDiff = tauDiff / 1000   # convert from per second to per ms, as model runs in ms time steps
 
+        secP_store = secdata.secP
+        secR_store = secdata.secR
+        secX_store = secdata.secX
+        secPlasma_store = secdata.secPlasma
+        secE_store = secdata.secE
+        secC_store = secdata.secC
+        secB_store = secdata.secB
+
         # Initialise variables
-        epsprate = 0
-        ipsprate = 0
         epspt = 0
         ipspt = 0
         ttime = 0
@@ -281,6 +290,7 @@ class SpikeModel(ModThread):
         # NMDA PSP
         epspt2 = 0
         inputPSP2 = 0
+        epsprate2 = psprate2 / 1000
 
         tB = 0  # Broadening
         tE = 0  # Fast Ca2+
@@ -297,12 +307,18 @@ class SpikeModel(ModThread):
         maxspikes = spikedata.maxspikes
         neurotime = 0
         runtime = runtime * 1000
+        #countstep = runtime / 100
+        countstep = max(1, runtime // 100)
+
+        log = math.log
+        rand = random.random
+
 
         # Run model loop
         for i in range(1, runtime + 1):
             ttime += 1
             neurotime += 1
-            if i%(runtime/100) == 0: 
+            if i % countstep == 0: 
                 progevent = ModThreadEvent(ModThreadProgressEvent)
                 progevent.SetInt(math.floor(neurotime / runtime * 100)) 
                 wx.QueueEvent(self.mod, progevent)                        # Update run progress % in model panel
@@ -310,25 +326,23 @@ class SpikeModel(ModThread):
             # PSP input signal
             nepsp = 0
             nipsp = 0
-            epsprate = psprate / 1000
-            ipsprate = epsprate * pspratio
+            
 
             # NMDA PSP
-            epsprate2 = psprate2 / 1000
             nepsp2 = 0
 
             if epsprate > 0: 
                 while epspt < hstep:
-                    erand = random.random()
+                    erand = rand()
                     nepsp += 1
-                    epspt = -math.log(1 - erand) / epsprate + epspt
+                    epspt = -log(1 - erand) / epsprate + epspt
                 epspt = epspt - hstep
 
             if ipsprate > 0: 
                 while ipspt < hstep:
-                    irand = random.random()
+                    irand = rand()
                     nipsp += 1
-                    ipspt = -math.log(1 - irand) / ipsprate + ipspt
+                    ipspt = -log(1 - irand) / ipsprate + ipspt
                 ipspt = ipspt - hstep
 
             inputPSP = nepsp * epspmag - nipsp * ipspmag
@@ -336,9 +350,9 @@ class SpikeModel(ModThread):
             # NMDA PSP
             if epsprate2 > 0:
                 while epspt2 < hstep:
-                    erand2 = random.random()
+                    erand2 = rand()
                     nepsp2 += 1
-                    epspt2 = -math.log(1 - erand2) / epsprate2 + epspt2
+                    epspt2 = -log(1 - erand2) / epsprate2 + epspt2
                 epspt2 = epspt2 - hstep
   
             if epspmag2:
@@ -392,13 +406,14 @@ class SpikeModel(ModThread):
 
 
             if i % datsample == 0 and i < secsize * datsample:
-                secdata.secP[int(i/datsample)] = tP
-                secdata.secR[int(i/datsample)] = tR
-                secdata.secX[int(i/datsample)] = secX
-                secdata.secPlasma[int(i/datsample)] = tPlasma / VolPlasma   # convert to concentration 
-                secdata.secE[int(i/datsample)] = tE
-                secdata.secC[int(i/datsample)] = tC
-                secdata.secB[int(i/datsample)] = tB
+                idx = i // datsample 
+                secP_store[idx] = tP
+                secR_store[idx] = tR
+                secX_store[idx] = secX
+                secPlasma_store[idx] = tPlasma / VolPlasma   # convert to concentration 
+                secE_store[idx] = tE
+                secC_store[idx] = tC
+                secB_store[idx] = tB
 
 
             # Spiking
@@ -424,6 +439,7 @@ class SpikeModel(ModThread):
 
         # Finalise data
         freq = spikedata.spikecount / (runtime / 1000)
+
         DiagWrite(f"Spike Model OK, generated {spikedata.spikecount} spikes, freq {freq:.2f}\n")
 
 
