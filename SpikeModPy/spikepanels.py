@@ -34,6 +34,8 @@ class SpikeBox(ParamBox):
         self.paramset.AddCon("halflifeHAP", "halflifeHAP", 8, 0.1, 2)
         self.paramset.AddCon("kAHP", "kAHP", 0.5, 0.01, 2)
         self.paramset.AddCon("halflifeAHP", "halflifeAHP", 500, 1, 2)
+        self.paramset.AddCon("kDAP", "kDAP", 0, 0.01, 2)
+        self.paramset.AddCon("halflifeDAP", "halflifeDAP", 500, 1, 2)
 
         self.paramset.AddCon("pspmag2", "pspmag2", 0, 0.1, 4)
         self.paramset.AddCon("psprate2", "psprate2", 0, 1, 2)

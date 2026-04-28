@@ -218,6 +218,8 @@ class SpikeModel(ModThread):
         halflifeHAP = spikeparams["halflifeHAP"]
         kAHP = spikeparams["kAHP"]
         halflifeAHP = spikeparams["halflifeAHP"]
+        kDAP = spikeparams["kDAP"]
+        halflifeDAP = spikeparams["halflifeDAP"]
 
         halflifeB = secparams["halflifeB"]
         halflifeE = secparams["halflifeE"]
@@ -254,6 +256,7 @@ class SpikeModel(ModThread):
         tauMem = math.log(2) / halflifeMem
         tauHAP = math.log(2) / halflifeHAP
         tauAHP = math.log(2) / halflifeAHP
+        tauDAP = math.log(2) / halflifeDAP
 
         epsprate = psprate / 1000
         ipsprate = epsprate * pspratio
@@ -286,6 +289,7 @@ class SpikeModel(ModThread):
         tPSP = 0
         tHAP = 0
         tAHP = 0
+        tDAP = 0
 
         # NMDA PSP
         epspt2 = 0
@@ -371,7 +375,8 @@ class SpikeModel(ModThread):
             tPSP = tPSP + inputPSP - tPSP * tauMem + inputPSP2 * tauPSP2    # NMDA PSP
             tHAP = tHAP - tHAP * tauHAP
             tAHP = tAHP - tAHP * tauAHP
-            V = Vrest + tPSP - tHAP - tAHP
+            tDAP = tDAP - tDAP * tauDAP
+            V = Vrest + tPSP - tHAP - tAHP + tDAP
 
             #print(f"SpikeModel step {i}  V {V:.2f}  tPSP {tPSP:.2f}  inputPSP {inputPSP:.2f}  nepsp {nepsp}")
 
@@ -428,6 +433,7 @@ class SpikeModel(ModThread):
                 # afterpotentials
                 tHAP = tHAP + kHAP
                 tAHP = tAHP + kAHP
+                tDAP = tDAP + kDAP
 
                 tB = tB + kB
                 tE = tE + kE * CaEnt
