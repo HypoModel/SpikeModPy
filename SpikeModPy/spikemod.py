@@ -32,8 +32,8 @@ class SecData():
         self.secC = pdata(size)   # slow Ca2+
         self.secB = pdata(size)   # spike broadening
 
-    
 
+    
 class SpikeMod(Mod):
     def __init__(self, mainwin, tag, label="", type=""):
         Mod.__init__(self, mainwin, tag, label, type)
@@ -129,6 +129,16 @@ class SpikeMod(Mod):
         self.modspike.Analysis()
         self.spikebox.SpikeData(self.modspike)
         self.mainwin.scalebox.GraphUpdateAll()
+
+
+    def DataSelect(self, plottag, xfrom, xto):
+        if plottag.startswith("cell") and self.spikedatabox.cellpanel:
+            self.spikedatabox.cellpanel.SetSelectRange(xfrom, xto)
+            self.spikedatabox.notebook.SetSelection(0)
+
+        if plottag.startswith("mod") and self.spikedatabox.modpanel:
+            self.spikedatabox.modpanel.SetSelectRange(xfrom, xto)
+            self.spikedatabox.notebook.SetSelection(1)
 
 
     def OnModThreadComplete(self, event):
@@ -330,8 +340,8 @@ class SpikeModel(ModThread):
             # PSP input signal
             nepsp = 0
             nipsp = 0
-            
 
+            
             # NMDA PSP
             nepsp2 = 0
 
