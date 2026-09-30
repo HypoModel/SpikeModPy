@@ -7,9 +7,13 @@
 ##
 
 
-import wx
 
+
+import wx
 from HypoModPy.hypomain import HypoMain, go_foreground
+
+
+        
 
 
 class HypoApp(wx.App):
