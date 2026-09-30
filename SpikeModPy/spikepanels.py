@@ -1,7 +1,7 @@
 
 import wx
 
-from HypoModPy.hypoparams import ParamBox
+from HypoModPy.hypotools import ParamBox
 
 
 

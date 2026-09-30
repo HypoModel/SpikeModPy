@@ -7,17 +7,18 @@ import math
 from datetime import datetime
 
 
+from HypoModPy.hypobase import GetSystem
+from HypoModPy.hypotools import DiagWrite, ParamBox
 from HypoModPy.hypomods import (
     Mod, ModThread, ModThreadEvent,
-    ModThreadCompleteEvent, ModThreadProgressEvent,
-    DiagWrite
+    ModThreadCompleteEvent, ModThreadProgressEvent
 )
-from HypoModPy.hypoparams import ParamBox
+from HypoModPy.hypotools import ParamBox
 from HypoModPy.hypodat import PlotDat, pdata
 from HypoModPy.hypogrid import GridBox
 from HypoModPy.hypospikes import SpikeDat, SpikeDataBox
 
-from spikepanels import SpikeBox, SecBox
+from SpikeModPy.spikepanels import SpikeBox, SecBox
 
 
 
