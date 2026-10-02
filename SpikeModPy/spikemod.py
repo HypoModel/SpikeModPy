@@ -112,6 +112,13 @@ class SpikeMod(Mod):
         if len(self.mainwin.panelset) > 2: self.mainwin.panelset[2].settag = "modhist5"
 
 
+    def OnBurst(self, event):
+        toolbox = self.mainwin.burstbox
+        if toolbox is None: self.mainwin.OnBurstBox(event)
+        elif toolbox.IsShown(): toolbox.Show(False)
+        else: toolbox.Show(True)
+        
+
     def NeuroData(self):
         DiagWrite("NeuroData() call\n")
 

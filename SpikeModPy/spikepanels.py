@@ -63,6 +63,8 @@ class SpikeBox(ParamBox):
         self.AddPanelButton(ID_Grid, "Grid", self.mod.gridbox)
         ID_Sec = wx.NewIdRef()
         self.AddPanelButton(ID_Sec, "Sec", self.mod.secbox)
+        ID_Burst = wx.NewIdRef()
+        self.AddPanelButton(ID_Burst, "Burst", None, self.mod.OnBurst)
 
         self.mainbox.AddSpacer(5)
         self.mainbox.Add(self.pconbox, 1, wx.ALIGN_CENTRE_HORIZONTAL|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 0)
